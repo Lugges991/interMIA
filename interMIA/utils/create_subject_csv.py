@@ -11,7 +11,7 @@ np.random.seed(seed=42)
 def main(fsl_dir, csv_subjects, train_csv, test_csv, val_csv):
     prep_paths = Path(fsl_dir).glob("*.npy")
     df = pd.read_csv(csv_subjects)
-    
+
     paths = []
     labels = []
     sub_ids = []
@@ -27,14 +27,13 @@ def main(fsl_dir, csv_subjects, train_csv, test_csv, val_csv):
         except Exception as e:
             print(sub_id)
 
-
     all_df = pd.DataFrame(columns=["PATH", "LABEL", "SUB_ID"])
     all_df["PATH"] = paths
     all_df["LABEL"] = labels
     all_df["SUB_ID"] = sub_ids
 
-    test_subs = np.random.choice(np.unique(sub_ids), int(len(np.unique(sub_ids))/10))
-
+    test_subs = np.random.choice(
+        np.unique(sub_ids), int(len(np.unique(sub_ids))/10))
 
     test_df = all_df[all_df["SUB_ID"].isin(test_subs)]
     train_df = all_df[~all_df["SUB_ID"].isin(test_subs)]
@@ -46,8 +45,7 @@ def main(fsl_dir, csv_subjects, train_csv, test_csv, val_csv):
     val_df.to_csv(val_csv)
 
 
-
-
 if __name__ == "__main__":
     fsl_dir = "/mnt/DATA/datasets/preprocessed/2Cprep_ABIDEII"
-    main(fsl_dir, "/mnt/DATA/datasets/ABIDEII/fsl_subs.csv",train_csv="data/train.csv", test_csv="data/test.csv", val_csv="data/val.csv")
+    main(fsl_dir, "/mnt/DATA/datasets/ABIDEII/fsl_subs.csv",
+         train_csv="data/train.csv", test_csv="data/test.csv", val_csv="data/val.csv")
