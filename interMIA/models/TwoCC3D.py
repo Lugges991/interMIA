@@ -52,7 +52,6 @@ class TwoCC3D(nn.Module):
         x = self.do3(x)
         x = self.block4(x)
         x = self.do4(x)
-        breakpoint()
         x = self.flat(x)
 
         x = self.fc6(x)
@@ -65,4 +64,6 @@ class TwoCC3D(nn.Module):
 if __name__ == "__main__":
     model = TwoCC3D().to("cuda")
     inp = torch.rand((1, 2, 32, 32, 32)).to("cuda")
-    summary(model, input_data=inp)
+    out = model(inp)
+    print(out.cpu().detach().numpy())
+    # summary(model, input_data=inp)

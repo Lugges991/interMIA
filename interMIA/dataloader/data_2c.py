@@ -7,7 +7,9 @@ from torch.nn.functional import interpolate
 
 def replace_labels(arr):
     arr[arr == 2] = 0
+    arr = np.eye(2)[arr]
     return arr
+
 
 class data_2c(Dataset):
     def __init__(self, csv, img_size=(32, 32, 32)):
@@ -21,7 +23,7 @@ class data_2c(Dataset):
         return len(self.paths)
 
     def __getitem__(self, idx):
-        vol = np.load(self.paths[idx])[None,...]
+        vol = np.load(self.paths[idx])[None, ...]
         vol = torch.from_numpy(vol)
         vol = interpolate(vol, size=self.img_size)[0]
         label = self.labels[idx]
