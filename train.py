@@ -13,9 +13,9 @@ from interMIA.dataloader import data_2c
 
 torch.manual_seed(42)
 
-cfg = {"BATCH_SIZE": 16,
+cfg = {"BATCH_SIZE": 32,
        "EPOCHS": 100,
-       "LR": 0.001,
+       "LR": 0.01,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 2,
        "MODEL_DIR": "./models"
@@ -38,14 +38,13 @@ def train():
     optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"])
 
     # loss
-    criterion = nn.BCELoss().cuda()
+    criterion = nn.BCEWithLogitsLoss().cuda()
 
     # metrics
     accuracy = tm.Accuracy().cuda()
     precision = tm.Precision().cuda()
     recall = tm.Recall().cuda()
     f1_score = tm.F1Score().cuda()
-    roc_score = tm.ROC().cuda()
 
     wandb.init(project="brain-biomarker-v0", group="kyb", config=cfg)
 
@@ -55,19 +54,23 @@ def train():
         epoch_loss = 0
 
         model.train()
-        for i, (x, y) in enumerate(tqdm(train_loader)):
-            inp = x.cuda()
-            lab = y.cuda()
+        with tqdm(train_loader, unit="batch") as tepoch:
+            for x, y in tepoch:
+                tepoch.set_description(f"Epoch {epoch}")
+                optimizer.zero_grad()
+                inp = x.cuda()
+                lab = y.cuda()
 
-            pred = model(inp)
+                pred = model(inp)
 
-            loss = criterion(pred, lab)
+                loss = criterion(pred, lab)
 
-            wandb.log({"BCELoss": loss})
+                wandb.log({"BCELoss": loss})
 
-            loss.backward()
-            optimizer.step()
-            epoch_loss += loss.item()
+                loss.backward()
+                optimizer.step()
+                epoch_loss += loss.item()
+                tepoch.set_postfix(loss=loss.item())
 
         if epoch % cfg["VAL_AFTER"] == 0:
             print(80*"+")
@@ -82,20 +85,20 @@ def train():
                 with torch.no_grad():
                     pred = model(inp)
 
+                lab = lab.type(torch.int)
+
                 acc = accuracy(pred, lab)
                 prec = precision(pred, lab)
                 rec = recall(pred, lab)
                 f1 = f1_score(pred, lab)
-                roc = roc_score(pred, lab)
 
-            acc = acc.compute()
-            prec = prec.compute()
-            rec = rec.compute()
-            f1 = f1.compute()
-            roc = roc.compute()
+            acc = accuracy.compute()
+            prec = precision.compute()
+            rec = recall.compute()
+            f1 = f1_score.compute()
 
             wandb.log({"Accuracy": acc, "Precision": prec,
-                      "Recall": rec, "F1 Score": f1, "ROC": roc})
+                       "Recall": rec, "F1 Score": f1, "Epoch Loss": epoch_loss})
 
             if acc > best_acc:
                 best_acc = acc
@@ -107,6 +110,9 @@ def train():
             precision.reset()
             recall.reset()
             f1_score.reset()
-            roc_score.reset()
             torch.save({"epoch": epoch, "state_dict": model.state_dict(
             ), "optimizer": optimizer.state_dict()}, os.path.join("./models/", f"model_epoch_{epoch}.pth"))
+
+
+if __name__ == "__main__":
+    train()

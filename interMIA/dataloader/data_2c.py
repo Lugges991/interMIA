@@ -24,9 +24,9 @@ class data_2c(Dataset):
 
     def __getitem__(self, idx):
         vol = np.load(self.paths[idx])[None, ...]
-        vol = torch.from_numpy(vol)
+        vol = torch.tensor(vol, dtype=torch.float)
         vol = interpolate(vol, size=self.img_size)[0]
-        label = self.labels[idx]
+        label = torch.tensor(self.labels[idx], dtype=torch.float)
         return vol, label
 
 

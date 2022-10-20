@@ -13,6 +13,7 @@ class Block(nn.Module):
         for i, (in_c, out_c) in enumerate(zip(in_channels, out_channels)):
             self.layer_list.append(
                 nn.Conv3d(in_c, out_c, kernel_size=c_kernels[i]))
+            self.layer_list.append(nn.ReLU())
             self.layer_list.append(nn.MaxPool3d(
                 kernel_size=p_kernel, stride=1))
 
@@ -38,10 +39,12 @@ class TwoCC3D(nn.Module):
         self.block4 = Block(in_channels=[128, 128], out_channels=[128, 128])
         self.do4 = nn.Dropout(p=0.65)
         self.flat = nn.Flatten()
+
         self.fc6 = nn.Linear(128 * 14**3, 256)
+        self.relu1 = nn.ReLU()
         self.fc7 = nn.Linear(256, 256)
+        self.relu2 = nn.ReLU()
         self.fc8 = nn.Linear(256, n_classes)
-        self.sm = nn.Sigmoid()
 
     def forward(self, x):
         x = self.block1(x)
@@ -55,9 +58,10 @@ class TwoCC3D(nn.Module):
         x = self.flat(x)
 
         x = self.fc6(x)
+        x = self.relu1(x)
         x = self.fc7(x)
+        x = self.relu2(x)
         x = self.fc8(x)
-        x = self.sm(x)
         return x
 
 
