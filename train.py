@@ -15,9 +15,9 @@ torch.manual_seed(42)
 
 cfg = {"BATCH_SIZE": 32,
        "EPOCHS": 100,
-       "LR": 0.01,
+       "LR": 0.003,
        "img_size": (32, 32, 32),
-       "VAL_AFTER": 2,
+       "VAL_AFTER": 10,
        "MODEL_DIR": "./models"
        }
 
@@ -36,6 +36,7 @@ def train():
 
     # optimizer
     optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"])
+    # optimizer = optim.SGD(model.parameters(), lr=cfg["LR"], weight_decay=0.01)
 
     # loss
     criterion = nn.BCEWithLogitsLoss().cuda()

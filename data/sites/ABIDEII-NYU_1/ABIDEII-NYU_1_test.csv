@@ -1,4 +1,4 @@
-SUB_ID,PATH,DX_GROUP,SITE_ID
+SUB_ID,PATH,LABEL,SITE_ID
 29195,/mnt/DATA/datasets/preprocessed/2Cprep_ABIDEII/29195_161.npy,1,ABIDEII-NYU_1
 29193,/mnt/DATA/datasets/preprocessed/2Cprep_ABIDEII/29193_163.npy,1,ABIDEII-NYU_1
 29201,/mnt/DATA/datasets/preprocessed/2Cprep_ABIDEII/29201_147.npy,1,ABIDEII-NYU_1

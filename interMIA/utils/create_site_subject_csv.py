@@ -41,7 +41,7 @@ def main():
             sub_id = re.sub("\D", "", path.name.split("_")[0])
             row = df[df.SUB_ID == int(sub_id)].iloc[0]
             temp = {"SUB_ID": sub_id, "PATH": path,
-                    "DX_GROUP": row.DX_GROUP, "SITE_ID": row.SITE_ID}
+                    "LABEL": row.DX_GROUP, "SITE_ID": row.SITE_ID}
             all_sub.append(temp)
 
         new_df = pd.DataFrame(all_sub)

@@ -40,6 +40,6 @@ def main(in_dir, out_dir):
 
 if __name__ == "__main__":
     # example_vol = "/home/lmahler/code/interMIA/data/filtered_func_data.nii.gz"
-    in_dir = "/mnt/DATA/datasets/preprocessed/ABIDEII"
-    out_dir = "/mnt/DATA/datasets/preprocessed/2Cprep_ABIDEII"
+    in_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/raw/ABIDEII-KKI_1"
+    out_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/2Cprep/ABIDEII-KKI_1"
     main(in_dir, out_dir)
