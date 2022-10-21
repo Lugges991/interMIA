@@ -23,8 +23,8 @@ cfg = {"BATCH_SIZE": 32,
 
 
 def train():
-    train_data = data_2c("data/train.csv")
-    val_data = data_2c("data/val.csv")
+    train_data = data_2c("data/sites/ABIDEII-KKI_1/ABIDEII-KKI_1_train.csv")
+    val_data = data_2c("data/sites/ABIDEII-KKI_1/ABIDEII-KKI_1_val.csv")
 
     train_loader = DataLoader(
         train_data, batch_size=cfg["BATCH_SIZE"], shuffle=True)
@@ -46,7 +46,7 @@ def train():
     recall = tm.Recall().cuda()
     f1_score = tm.F1Score().cuda()
 
-    wandb.init(project="brain-biomarker-v0", group="kyb", config=cfg)
+    wandb.init(project="brain-biomarker-site-v0", group="kyb", config=cfg)
 
     best_acc = 0.
 
