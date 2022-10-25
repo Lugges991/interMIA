@@ -1,4 +1,5 @@
 """Script that takes FSL preprocessed data, performs temporal slicing, averages over temporal slice, calculates std for temporal slice and stores as 2 channel 3D volume"""
+import pandas as pd
 import numpy as np
 import nibabel as nib
 from pathlib import Path
@@ -26,11 +27,21 @@ def save_files(out_dir, sub_id, arr):
         np.save(f_name, a)
 
 
+def preprocess_from_df(df, out_dir):
+    out_dir = Path(out_dir)
+    for i, row in tqdm(df.iterrows()):
+        sub_id = row.SUB_ID
+        vol =  nib.load(row.FILTER)
+        arr = preprocess_volume(vol)
+        save_files(out_dir, sub_id, arr)
+
+
 def main(in_dir, out_dir):
     out_dir = Path(out_dir)
-    func_list = Path(in_dir).rglob("filtered_func_data.nii.gz")
+    func_list = Path(in_dir).rglob("registered.nii.gz")
     for f_path in tqdm(func_list):
-        sub_id = f_path.parts[-2].strip(".feat")
+        breakpoint()
+        sub_id = f_path.parts[-3].strip(".feat")
         vol = nib.load(f_path)
         arr = preprocess_volume(vol)
         save_files(out_dir, sub_id, arr)
@@ -40,6 +51,12 @@ def main(in_dir, out_dir):
 
 if __name__ == "__main__":
     # example_vol = "/home/lmahler/code/interMIA/data/filtered_func_data.nii.gz"
-    in_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/raw/ABIDEII-KKI_1"
+    # in_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/raw/ABIDEII-KKI_1"
+    # main(in_dir, out_dir)
+    df = pd.read_csv("data/fsl_filtered_ABIDEII-KK_1.csv")
     out_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/2Cprep/ABIDEII-KKI_1"
-    main(in_dir, out_dir)
+
+    preprocess_from_df(df, out_dir)
+
+
+

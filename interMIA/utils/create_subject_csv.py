@@ -27,6 +27,7 @@ def main(fsl_dir, csv_subjects, train_csv, test_csv, val_csv):
         except Exception as e:
             print(sub_id)
 
+
     all_df = pd.DataFrame(columns=["PATH", "LABEL", "SUB_ID"])
     all_df["PATH"] = paths
     all_df["LABEL"] = labels
@@ -46,6 +47,6 @@ def main(fsl_dir, csv_subjects, train_csv, test_csv, val_csv):
 
 
 if __name__ == "__main__":
-    fsl_dir = "/mnt/DATA/datasets/preprocessed/2Cprep_ABIDEII"
-    main(fsl_dir, "/mnt/DATA/datasets/ABIDEII/fsl_subs.csv",
-         train_csv="data/train.csv", test_csv="data/test.csv", val_csv="data/val.csv")
+    fsl_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/2Cprep/ABIDEII-KKI_1"
+    main(fsl_dir, "data/fsl_filtered_ABIDEII-KK_1.csv",
+         train_csv="data/sites/ABIDEII-KKI_1/train.csv", test_csv="data/sites/ABIDEII-KKI_1/test.csv", val_csv="data/sites/ABIDEII-KKI_1/val.csv")
