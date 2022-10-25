@@ -7,7 +7,8 @@ from torch.utils.data import DataLoader
 from torch import nn
 from tqdm import tqdm
 
-from interMIA.models import TwoCVGG
+# from interMIA.models import TwoCVGG
+from interMIA.models import TwoCC3D
 from interMIA.dataloader import data_2c
 
 
@@ -18,13 +19,14 @@ cfg = {"BATCH_SIZE": 32,
        "LR": 0.1,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 3,
-       "MODEL_DIR": "./models"
+       "MODEL_DIR": "./models",
+       "MODEL_NAME": "TwoCC3D",
        }
 
 
 def train():
-    train_data = data_2c("data/sites/ABIDEII-KKI_1/ABIDEII-KKI_1_train.csv")
-    val_data = data_2c("data/sites/ABIDEII-KKI_1/ABIDEII-KKI_1_val.csv")
+    train_data = data_2c("data/sites/ABIDEII-KKI_1/train.csv")
+    val_data = data_2c("data/sites/ABIDEII-KKI_1/val.csv")
 
     train_loader = DataLoader(
         train_data, batch_size=cfg["BATCH_SIZE"], shuffle=False)
@@ -32,7 +34,7 @@ def train():
         val_data, batch_size=cfg["BATCH_SIZE"], shuffle=False)
 
     # model definition
-    model = TwoCVGG().cuda()
+    model = TwoCC3D().cuda()
 
     # optimizer
     optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"])
