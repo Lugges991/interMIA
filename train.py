@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torch import nn
 from tqdm import tqdm
 
-from interMIA.models import TwoCC3D
+from interMIA.models import TwoCVGG
 from interMIA.dataloader import data_2c
 
 
@@ -15,9 +15,9 @@ torch.manual_seed(42)
 
 cfg = {"BATCH_SIZE": 32,
        "EPOCHS": 100,
-       "LR": 0.003,
+       "LR": 0.1,
        "img_size": (32, 32, 32),
-       "VAL_AFTER": 10,
+       "VAL_AFTER": 3,
        "MODEL_DIR": "./models"
        }
 
@@ -27,12 +27,12 @@ def train():
     val_data = data_2c("data/sites/ABIDEII-KKI_1/ABIDEII-KKI_1_val.csv")
 
     train_loader = DataLoader(
-        train_data, batch_size=cfg["BATCH_SIZE"], shuffle=True)
+        train_data, batch_size=cfg["BATCH_SIZE"], shuffle=False)
     val_loader = DataLoader(
-        val_data, batch_size=cfg["BATCH_SIZE"], shuffle=True)
+        val_data, batch_size=cfg["BATCH_SIZE"], shuffle=False)
 
     # model definition
-    model = TwoCC3D().cuda()
+    model = TwoCVGG().cuda()
 
     # optimizer
     optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"])
@@ -54,11 +54,10 @@ def train():
     for epoch in range(cfg["EPOCHS"]):
         epoch_loss = 0
 
-        model.train()
         with tqdm(train_loader, unit="batch") as tepoch:
+            model.train()
             for x, y in tepoch:
                 tepoch.set_description(f"Epoch {epoch}")
-                optimizer.zero_grad()
                 inp = x.cuda()
                 lab = y.cuda()
 
@@ -68,10 +67,13 @@ def train():
 
                 wandb.log({"BCELoss": loss})
 
+                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
                 tepoch.set_postfix(loss=loss.item())
+
+            wandb.log({"Epoch Loss": epoch_loss})
 
         if epoch % cfg["VAL_AFTER"] == 0:
             print(80*"+")
