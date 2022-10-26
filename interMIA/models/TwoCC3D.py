@@ -31,13 +31,13 @@ class TwoCC3D(nn.Module):
 
         self.block1 = Block(in_channels=[in_channels], out_channels=[
                             32])
-        self.do1 = nn.Dropout(p=0.5)
+        # self.do1 = nn.Dropout(p=0.5)
         self.block2 = Block(in_channels=[32], out_channels=[64])
-        self.do2 = nn.Dropout(p=0.5)
+        # self.do2 = nn.Dropout(p=0.5)
         self.block3 = Block(in_channels=[64, 128], out_channels=[128, 128])
-        self.do3 = nn.Dropout(p=0.65)
+        # self.do3 = nn.Dropout(p=0.65)
         self.block4 = Block(in_channels=[128, 128], out_channels=[128, 128])
-        self.do4 = nn.Dropout(p=0.65)
+        # self.do4 = nn.Dropout(p=0.65)
         self.flat = nn.Flatten()
 
         self.fc6 = nn.Linear(128 * 14**3, 256)
@@ -48,13 +48,13 @@ class TwoCC3D(nn.Module):
 
     def forward(self, x):
         x = self.block1(x)
-        x = self.do1(x)
+        # x = self.do1(x)
         x = self.block2(x)
-        x = self.do2(x)
+        # x = self.do2(x)
         x = self.block3(x)
-        x = self.do3(x)
+        # x = self.do3(x)
         x = self.block4(x)
-        x = self.do4(x)
+        # x = self.do4(x)
         x = self.flat(x)
 
         x = self.fc6(x)

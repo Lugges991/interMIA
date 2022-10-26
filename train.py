@@ -29,9 +29,9 @@ def train():
     val_data = data_2c("data/sites/ABIDEII-KKI_1/val.csv")
 
     train_loader = DataLoader(
-        train_data, batch_size=cfg["BATCH_SIZE"], shuffle=False)
+        train_data, batch_size=cfg["BATCH_SIZE"], shuffle=True)
     val_loader = DataLoader(
-        val_data, batch_size=cfg["BATCH_SIZE"], shuffle=False)
+        val_data, batch_size=cfg["BATCH_SIZE"], shuffle=True)
 
     # model definition
     model = TwoCC3D().cuda()
