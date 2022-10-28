@@ -38,7 +38,7 @@ def preprocess_from_df(df, out_dir):
 
 def main(in_dir, out_dir):
     out_dir = Path(out_dir)
-    func_list = Path(in_dir).rglob("registered.nii.gz")
+    func_list = Path(in_dir).rglob("func_reg.nii.gz")
     for f_path in tqdm(func_list):
         breakpoint()
         sub_id = f_path.parts[-3].strip(".feat")
@@ -53,8 +53,8 @@ if __name__ == "__main__":
     # example_vol = "/home/lmahler/code/interMIA/data/filtered_func_data.nii.gz"
     # in_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/raw/ABIDEII-KKI_1"
     # main(in_dir, out_dir)
-    df = pd.read_csv("data/fsl_filtered_ABIDEII-KK_1.csv")
-    out_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/2Cprep/ABIDEII-KKI_1"
+    df = pd.read_csv("data/fsl_filtered_ABIDEII-GU_1.csv")
+    out_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/2Cprep/ABIDEII-GU_1"
 
     preprocess_from_df(df, out_dir)
 

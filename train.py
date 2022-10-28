@@ -1,8 +1,12 @@
 import os
+import sys
 import torch
 import wandb
+import signal
+import shutil
 import torch.optim as optim
 import torchmetrics as tm
+from pathlib import Path
 from torch.utils.data import DataLoader
 from torch import nn
 from tqdm import tqdm
@@ -14,14 +18,29 @@ from interMIA.dataloader import data_2c
 
 torch.manual_seed(42)
 
-cfg = {"BATCH_SIZE": 32,
+cfg = {"BATCH_SIZE": 16,
        "EPOCHS": 100,
        "LR": 0.1,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 3,
        "MODEL_DIR": "./models",
        "MODEL_NAME": "TwoCC3D",
+       "INFO": "weight_decay=0.1",
        }
+
+RUN_NAME = ""
+
+
+def copy_models(sig, frame):
+    out_dir = Path("/mnt/DATA/models/" + RUN_NAME)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for pth in Path("./models/").glob("*.pth"):
+        print(f"Copying {pth} to {out_dir}")
+        shutil.move(pth, out_dir)
+
+    print("Done copying.")
+
+    sys.exit()
 
 
 def train():
@@ -37,7 +56,7 @@ def train():
     model = TwoCC3D().cuda()
 
     # optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"])
+    optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"], weight_decay=0.1)
     # optimizer = optim.SGD(model.parameters(), lr=cfg["LR"], weight_decay=0.01)
 
     # loss
@@ -48,8 +67,9 @@ def train():
     precision = tm.Precision().cuda()
     recall = tm.Recall().cuda()
     f1_score = tm.F1Score().cuda()
-
-    wandb.init(project="brain-biomarker-site-v0", group="kyb", config=cfg)
+    project_name = "brain-biomarker-site-v0"
+    run = wandb.init(project=project_name, group="kyb", config=cfg)
+    RUN_NAME = project_name + "_" + run.name
 
     best_acc = 0.
 
@@ -73,7 +93,7 @@ def train():
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
-                tepoch.set_postfix(loss=loss.item())
+                tepoch.set_postfix(loss=f"{loss.item():10.3f}")
 
             wandb.log({"Epoch Loss": epoch_loss})
 
@@ -118,6 +138,10 @@ def train():
             torch.save({"epoch": epoch, "state_dict": model.state_dict(
             ), "optimizer": optimizer.state_dict()}, os.path.join("./models/", f"model_epoch_{epoch}.pth"))
 
+    copy_models(None, None)
+
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, copy_models)
     train()
+    signal.pause()

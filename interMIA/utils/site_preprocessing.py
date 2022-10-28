@@ -5,7 +5,7 @@ import time
 from multiprocessing import Pool
 
 
-out_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/raw/ABIDEII-KKI_1/"
+out_dir = "/mnt/DATA/datasets/preprocessed/site-ABIDEII/raw/ABIDEII-GU_1/"
 
 
 def search_replace_template(fmri, out, tr, vol, bet, design, base_template="./data/design_template.fsf"):
@@ -60,6 +60,6 @@ def run_feat(row):
 
 if __name__ == "__main__":
     df = pd.read_csv("./data/fsl_bet.csv")
-    df = df[df.SITE_ID == "ABIDEII-KKI_1"]
+    df = df[df.SITE_ID == "ABIDEII-GU_1"]
     with Pool(10) as p:
         print(p.map(run_feat, [row for i, row in df.iterrows()]))
