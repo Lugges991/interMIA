@@ -11,41 +11,35 @@ from torch.utils.data import DataLoader
 from torch import nn
 from tqdm import tqdm
 
-# from interMIA.models import TwoCVGG
-from interMIA.models import TwoCC3D
+from interMIA.models import TwoCVGG
+from interMIA.models import TwoCC3D  
+from interMIA.models import DM as Model
 from interMIA.dataloader import data_2c
+from interMIA.utils.file_utils import check_or_make_dir, copy_models
 
 
 torch.manual_seed(42)
 
 cfg = {"BATCH_SIZE": 16,
-       "EPOCHS": 100,
-       "LR": 0.1,
+       "EPOCHS": 10,
+       "LR": 1e-5,
        "img_size": (32, 32, 32),
-       "VAL_AFTER": 3,
-       "MODEL_DIR": "./models",
-       "MODEL_NAME": "TwoCC3D",
-       "INFO": "weight_decay=0.1",
+       "VAL_AFTER": 2,
+       "MODEL_DIR": "./models/",
+       "MODEL_NAME": DM(),
+       "loss": nn.CrossEntropyLoss(),
+       "INFO": "weight_decay=0.",
+       "SITE": "ABIDEII-GU_1",
        }
 
 RUN_NAME = ""
 
 
-def copy_models(sig, frame):
-    out_dir = Path("/mnt/DATA/models/" + RUN_NAME)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    for pth in Path("./models/").glob("*.pth"):
-        print(f"Copying {pth} to {out_dir}")
-        shutil.move(pth, out_dir)
-
-    print("Done copying.")
-
-    sys.exit()
 
 
 def train():
-    train_data = data_2c("data/sites/ABIDEII-KKI_1/train.csv")
-    val_data = data_2c("data/sites/ABIDEII-KKI_1/val.csv")
+    train_data = data_2c("data/sites/ABIDEII-GU_1/train.csv")
+    val_data = data_2c("data/sites/ABIDEII-GU_1/val.csv")
 
     train_loader = DataLoader(
         train_data, batch_size=cfg["BATCH_SIZE"], shuffle=True)
@@ -53,15 +47,14 @@ def train():
         val_data, batch_size=cfg["BATCH_SIZE"], shuffle=True)
 
     # model definition
-    model = TwoCC3D().cuda()
-
+    model = cfg["MODEL_NAME"].cuda()
     # optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"], weight_decay=0.1)
-    # optimizer = optim.SGD(model.parameters(), lr=cfg["LR"], weight_decay=0.01)
+    optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"])
+    #optimizer = optim.SGD(model.parameters(), lr=cfg["LR"])
 
     # loss
-    criterion = nn.BCEWithLogitsLoss().cuda()
-
+    criterion = nn.CrossEntropyLoss().cuda()
+    
     # metrics
     accuracy = tm.Accuracy().cuda()
     precision = tm.Precision().cuda()
@@ -69,8 +62,9 @@ def train():
     f1_score = tm.F1Score().cuda()
     project_name = "brain-biomarker-site-v0"
     run = wandb.init(project=project_name, group="kyb", config=cfg)
-    RUN_NAME = project_name + "_" + run.name
-
+    model_dir = cfg["MODEL_DIR"] + project_name + "_" + run.name
+    check_or_make_dir(model_dir)
+    
     best_acc = 0.
 
     for epoch in range(cfg["EPOCHS"]):
@@ -129,19 +123,19 @@ def train():
                 best_acc = acc
                 best_epoch = epoch
                 torch.save({"epoch": epoch, "state_dict": model.state_dict(
-                ), "optimizer": optimizer.state_dict()}, os.path.join("./models/", "best_model.pth"))
+                ), "optimizer": optimizer.state_dict()}, os.path.join(model_dir, "best_model.pth"))
 
             accuracy.reset()
             precision.reset()
             recall.reset()
             f1_score.reset()
             torch.save({"epoch": epoch, "state_dict": model.state_dict(
-            ), "optimizer": optimizer.state_dict()}, os.path.join("./models/", f"model_epoch_{epoch}.pth"))
+            ), "optimizer": optimizer.state_dict()}, os.path.join(model_dir, f"model_epoch_{epoch}.pth"))
 
-    copy_models(None, None)
+    #copy_models(None, None)
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, copy_models)
+    #signal.signal(signal.SIGINT, copy_models)
     train()
-    signal.pause()
+    # signal.pause()

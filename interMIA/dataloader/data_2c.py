@@ -11,6 +11,10 @@ def replace_labels(arr):
     return arr
 
 
+def normalize(arr):
+    return (arr - np.min(arr)) / (np.max(arr) - np.min(arr))
+
+
 class data_2c(Dataset):
     def __init__(self, csv, img_size=(32, 32, 32)):
         super().__init__()
@@ -23,7 +27,8 @@ class data_2c(Dataset):
         return len(self.paths)
 
     def __getitem__(self, idx):
-        vol = np.load(self.paths[idx])[None, ...]
+        vol = np.load(self.paths[idx])
+        vol = normalize(vol)[None, ...]
         vol = torch.tensor(vol, dtype=torch.float)
         vol = interpolate(vol, size=self.img_size)[0]
         label = torch.tensor(self.labels[idx], dtype=torch.float)

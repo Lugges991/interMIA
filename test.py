@@ -12,7 +12,8 @@ from torch.utils.data import Dataset
 from torch.nn.functional import interpolate, softmax
 
 # from interMIA.models import TwoCVGG
-from interMIA.models import TwoCC3D
+# from interMIA.models import TwoCC3D as Model
+from interMIA.models import DM as Model
 from interMIA.dataloader import data_2c
 
 
@@ -24,7 +25,7 @@ cfg = {"BATCH_SIZE": 30,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 3,
        "MODEL_DIR": "./models",
-       "MODEL_NAME": "TwoCVGG",
+       "MODEL_NAME": "TwoCC3d",
        }
 
 
@@ -65,10 +66,10 @@ class TestData(Dataset):
 
 
 def test():
-    test_data = pd.read_csv("data/sites/ABIDEII-KKI_1/test.csv")
+    test_data = pd.read_csv("data/sites/ABIDEII-GU_1/test.csv")
 
     # model definition
-    model = TwoCC3D().cuda()
+    model = Model().cuda()
     # model = TwoCVGG().cuda()
     # model.load_state_dict(torch.load("/mnt/DATA/models/brain-biomarker-sitev0-generous-planet-8/best_model.pth")["state_dict"])
     model.load_state_dict(torch.load("models/best_model.pth")["state_dict"])
@@ -87,7 +88,7 @@ def test():
 
         pred_probs = []
         lab_0 = 0
-        lab_1 = 1
+        lab_1 = 0
         for x, y in dl:
             x = x.cuda()
             y = y.cuda()
