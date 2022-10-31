@@ -12,8 +12,9 @@ from torch import nn
 from tqdm import tqdm
 
 from interMIA.models import TwoCVGG
-from interMIA.models import TwoCC3D  
-from interMIA.models import DM as Model
+from interMIA.models import TwoCC3D
+from interMIA.models import DM
+from interMIA.models import ResNet
 from interMIA.dataloader import data_2c
 from interMIA.utils.file_utils import check_or_make_dir, copy_models
 
@@ -22,19 +23,19 @@ torch.manual_seed(42)
 
 cfg = {"BATCH_SIZE": 16,
        "EPOCHS": 10,
-       "LR": 1e-5,
+       "LR": 0.1,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 2,
        "MODEL_DIR": "./models/",
-       "MODEL_NAME": DM(),
+       "MODEL_NAME": ResNet(),
        "loss": nn.CrossEntropyLoss(),
-       "INFO": "weight_decay=0.",
+       "INFO": "normalize",
        "SITE": "ABIDEII-GU_1",
+       "WEIGHT_DECAY": 0.005,
+       "MOMENTUM": 0.9,
        }
 
 RUN_NAME = ""
-
-
 
 
 def train():
@@ -49,22 +50,23 @@ def train():
     # model definition
     model = cfg["MODEL_NAME"].cuda()
     # optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"])
-    #optimizer = optim.SGD(model.parameters(), lr=cfg["LR"])
+    #optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"], weight_decay=cfg["WEIGHT_DECAY"])
+    optimizer = optim.SGD(model.parameters(), lr=cfg["LR"], weight_decay=cfg["WEIGHT_DECAY"], momentum=cfg["MOMENTUM"])
 
     # loss
     criterion = nn.CrossEntropyLoss().cuda()
-    
+
     # metrics
     accuracy = tm.Accuracy().cuda()
     precision = tm.Precision().cuda()
     recall = tm.Recall().cuda()
     f1_score = tm.F1Score().cuda()
+
     project_name = "brain-biomarker-site-v0"
     run = wandb.init(project=project_name, group="kyb", config=cfg)
     model_dir = cfg["MODEL_DIR"] + project_name + "_" + run.name
     check_or_make_dir(model_dir)
-    
+
     best_acc = 0.
 
     for epoch in range(cfg["EPOCHS"]):
