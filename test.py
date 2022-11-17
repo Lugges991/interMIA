@@ -13,7 +13,7 @@ from torch.nn.functional import interpolate, softmax
 
 # from interMIA.models import TwoCVGG
 # from interMIA.models import TwoCC3D as Model
-from interMIA.models import DM as Model
+from interMIA.models import ResNet as Model
 from interMIA.dataloader import data_2c
 
 
@@ -66,13 +66,13 @@ class TestData(Dataset):
 
 
 def test():
-    test_data = pd.read_csv("data/sites/ABIDEII-GU_1/test.csv")
+    test_data = pd.read_csv("data/test.csv")
 
     # model definition
     model = Model().cuda()
     # model = TwoCVGG().cuda()
     # model.load_state_dict(torch.load("/mnt/DATA/models/brain-biomarker-sitev0-generous-planet-8/best_model.pth")["state_dict"])
-    model.load_state_dict(torch.load("models/best_model.pth")["state_dict"])
+    model.load_state_dict(torch.load("models/brain-biomarker-whole-v0_floral-gorge-1/model_epoch_2.pth")["state_dict"])
 
     test_data = prepare_subs(test_data)
 

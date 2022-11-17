@@ -3,3 +3,4 @@ from .TwoCC3D import TwoCC3D
 from .TwoCVGG import TwoCVGG
 from .dm import DM
 from .resnet import ResNet
+from .vit3d import ViT3D
