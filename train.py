@@ -17,6 +17,7 @@ from interMIA.models import DM
 from interMIA.models import ResNet, ViT3D
 from interMIA.dataloader import data_2c
 from interMIA.utils.file_utils import check_or_make_dir, copy_models
+from interMIA.utils import EarlyStopping
 
 
 torch.manual_seed(42)
@@ -27,7 +28,7 @@ cfg = {"BATCH_SIZE": 16,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 2,
        "MODEL_DIR": "./models/",
-       "MODEL_NAME": ViT3D(),
+       "MODEL_NAME": ViT3D(depth=8, dim_head=128),
        "loss": nn.CrossEntropyLoss(),
        "INFO": "normalize",
        "SITE": "WHOLE",
@@ -55,6 +56,11 @@ def train():
 
     # loss
     criterion = nn.CrossEntropyLoss().cuda()
+
+
+    # Early Stopping
+    early_stopper = EarlyStopping(patience=3, min_delta=10)
+
 
     # metrics
     accuracy = tm.Accuracy().cuda()
@@ -93,11 +99,14 @@ def train():
 
             wandb.log({"Epoch Loss": epoch_loss})
 
+
         if epoch % cfg["VAL_AFTER"] == 0:
             print(80*"+")
             print("Running Evaluation")
             print(80*"+")
             model.eval()
+
+            val_loss = 0.
 
             for ii, (xx, yy) in enumerate(tqdm(val_loader)):
                 inp = xx.cuda()
@@ -106,12 +115,17 @@ def train():
                 with torch.no_grad():
                     pred = model(inp)
 
+                val_loss += nn.functional.cross_entropy(pred, lab).item()
+
                 lab = lab.type(torch.int)
 
                 acc = accuracy(pred, lab)
                 prec = precision(pred, lab)
                 rec = recall(pred, lab)
                 f1 = f1_score(pred, lab)
+
+
+
 
             acc = accuracy.compute()
             prec = precision.compute()
@@ -133,6 +147,13 @@ def train():
             f1_score.reset()
             torch.save({"epoch": epoch, "state_dict": model.state_dict(
             ), "optimizer": optimizer.state_dict()}, os.path.join(model_dir, f"model_epoch_{epoch}.pth"))
+
+            # early stopping here
+            if early_stopper.early_stop(val_loss):
+                print(80*"+")
+                print(f"Early Stopping at epoch {epoch}")
+                torch.save({"epoch": epoch, "state_dict": model.state_dict(
+                ), "optimizer": optimizer.state_dict()}, os.path.join(model_dir, "early_stopping.pth"))
 
     #copy_models(None, None)
 

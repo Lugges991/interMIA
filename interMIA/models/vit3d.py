@@ -137,7 +137,7 @@ class ViT3D(nn.Module):
 
 
 if __name__ == "__main__":
-    model = ViT3D()
+    model = ViT3D(dim_head=128, depth=8)
     inp = torch.rand((1, 2, 32, 32, 32))
     out = model(inp)
     print(out.shape)
