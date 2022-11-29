@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import numpy as np
 import torch.optim as optim
-import matplotlib.pyplot as plt
 import nibabel as nib
 from interMIA.models import ResNet
 
@@ -10,11 +9,12 @@ from interMIA.models import ResNet
 torch.manual_seed(42)
 
 
-def feature_visualization():
+def feature_visualization(pretrain=True):
 
     model = ResNet().cuda()
-    sd = torch.load("models/brain-biomarker-site-v0_pious-galaxy-47/best_model.pth")["state_dict"]
-    model.load_state_dict(sd)
+    if pretrain:
+        sd = torch.load("models/brain-biomarker-site-v0_pious-galaxy-47/best_model.pth")["state_dict"]
+        model.load_state_dict(sd)
 
 
 
@@ -50,6 +50,8 @@ def feature_visualization():
     nib.save(vol1, "data/feature_vis_0.nii")
     vol2 = nib.Nifti1Image(img[0, 1, :].detach().cpu().numpy(), affine=np.eye(4))
     nib.save(vol2, "data/feature_vis_1.nii")
+
+    return vol1, vol2
 
 
 

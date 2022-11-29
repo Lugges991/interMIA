@@ -2,9 +2,11 @@ import os
 import numpy as np
 import torch
 import nibabel as nib
+import matplotlib.pyplot as plt
 from torch.autograd import Variable
 from torch.optim import SGD
 from torchvision import models
+from sklearn.decomposition import PCA
 
 
 
@@ -44,14 +46,14 @@ class ClassSpecificImageGeneration():
         if not os.path.exists('data/vis/class_'+str(self.target_class)):
             os.makedirs('data/vis/class_'+str(self.target_class))
 
-    def generate(self, iterations=1500):
+    def generate(self, iterations=500):
         """Generates class specific image
         Keyword Arguments:
             iterations {int} -- Total iterations for gradient ascent (default: {150})
         Returns:
             np.ndarray -- Final maximally activated class image
         """
-        initial_learning_rate = 0.01
+        initial_learning_rate = 1e-4
         for i in range(1, iterations):
             # Process image and return variable
             self.proc_img = preprocess_image(self.created_image)
@@ -79,5 +81,24 @@ class ClassSpecificImageGeneration():
 
         return self.proc_img
 
+
+def compare_fm_differences(img1, img2):
+    breakpoint()
+
+    img1= np.array([f.flatten() for f in img1])
+    img2= np.array([f.flatten() for f in img2])
+
+    pca = PCA(2)
+
+    c_img1 = pca.fit_transform(img1)
+    c_img2 = pca.fit_transform(img2)
+
+    plt.style.use("seaborn-whitegrid")
+    plt.figure(figsize=(10, 6))
+    c_map = plt.cm.get_cmap("jet", 10)
+    plt.scatter(c_img1[:,0], c_img1[:,1], cmap=c_map)
+    plt.scatter(c_img2[:,0], c_img2[:,1], cmap=c_map)
+    plt.colorbar()
+    plt.show()
 
 

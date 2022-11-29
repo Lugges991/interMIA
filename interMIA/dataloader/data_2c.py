@@ -44,3 +44,4 @@ if __name__ == "__main__":
     print(f"Time for one batch: {time.time()- now}")
     print(x.shape)
     print(y)
+    breakpoint()
