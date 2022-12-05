@@ -22,6 +22,8 @@ from interMIA.utils import EarlyStopping
 
 torch.manual_seed(42)
 
+
+
 cfg = {"BATCH_SIZE": 16,
        "EPOCHS": 10,
        "LR": 1e-5,
