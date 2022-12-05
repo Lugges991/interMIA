@@ -83,7 +83,6 @@ class ClassSpecificImageGeneration():
 
 
 def compare_fm_differences(img1, img2):
-    breakpoint()
 
     img1= np.array([f.flatten() for f in img1])
     img2= np.array([f.flatten() for f in img2])
