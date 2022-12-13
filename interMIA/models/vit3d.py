@@ -135,9 +135,12 @@ class ViT3D(nn.Module):
         x = self.to_latent(x)
         return self.mlp_head(x)
 
+    def __str__(self, ):
+        return "ViT3D"
+
 
 if __name__ == "__main__":
-    model = ViT3D(dim_head=128, depth=8)
+    model = ViT3D(heads=16, depth=24, dim=1024, mlp_dim=4096)
     inp = torch.rand((1, 2, 32, 32, 32))
     out = model(inp)
     print(out.shape)

@@ -30,11 +30,11 @@ cfg = {"BATCH_SIZE": 16,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 2,
        "MODEL_DIR": "./models/",
-       "MODEL_NAME": ViT3D(depth=8, dim_head=128),
+       "MODEL_NAME": ViT3D(patch_size=16, heads=16, depth=24, dim=1024, mlp_dim=4096),
        "loss": nn.CrossEntropyLoss(),
        "INFO": "normalize",
        "SITE": "WHOLE",
-       "WEIGHT_DECAY": 0.005,
+       "WEIGHT_DECAY": 0.1,
        "MOMENTUM": 0.9,
        }
 
@@ -70,7 +70,7 @@ def train():
     recall = tm.Recall().cuda()
     f1_score = tm.F1Score().cuda()
 
-    project_name = "brain-biomarker-whole-v0"
+    project_name = "brain-biomarker-whole-trafo-v0"
     run = wandb.init(project=project_name, group="kyb", config=cfg)
     model_dir = cfg["MODEL_DIR"] + project_name + "_" + run.name
     check_or_make_dir(model_dir)
