@@ -13,20 +13,27 @@ from torch.nn.functional import interpolate, softmax
 
 # from interMIA.models import TwoCVGG
 # from interMIA.models import TwoCC3D as Model
-from interMIA.models import ViT3D as Model
+from interMIA.models import ViT3D
 from interMIA.dataloader import data_2c
 
 
 torch.manual_seed(42)
 
-cfg = {"BATCH_SIZE": 30,
-       "EPOCHS": 100,
-       "LR": 0.1,
+cfg = {"BATCH_SIZE": 16,
+       "EPOCHS": 10,
+       "LR": 1e-5,
        "img_size": (32, 32, 32),
-       "VAL_AFTER": 3,
-       "MODEL_DIR": "./models",
-       "MODEL_NAME": "TwoCC3d",
+       "VAL_AFTER": 2,
+       "MODEL_DIR": "./models/",
+       "MODEL_NAME": ViT3D(patch_size=16, heads=16, depth=24, dim=1024, mlp_dim=4096),
+       "loss": nn.CrossEntropyLoss(),
+       "INFO": "normalize",
+       "SITE": "WHOLE",
+       "WEIGHT_DECAY": 0.1,
+       "MOMENTUM": 0.9,
        }
+
+RUN_NAME = ""
 
 
 def prepare_subs(df):
@@ -69,10 +76,11 @@ def test():
     test_data = pd.read_csv("data/test.csv")
 
     # model definition
-    model = Model(depth=8, dim_head=128).cuda()
+    model = cfg["MODEL_NAME"].cuda()
     # model = TwoCVGG().cuda()
     # model.load_state_dict(torch.load("/mnt/DATA/models/brain-biomarker-sitev0-generous-planet-8/best_model.pth")["state_dict"])
-    model.load_state_dict(torch.load("models/brain-biomarker-whole-v0_misty-plant-3/model_epoch_4.pth")["state_dict"])
+    breakpoint()
+    model.load_state_dict(torch.load("/home/lmahler/code/interMIA/models/brain-biomarker-whole-trafo-v0_fast-rain-2/best_model.pth")["state_dict"])
 
     test_data = prepare_subs(test_data)
 
