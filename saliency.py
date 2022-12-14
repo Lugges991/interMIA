@@ -7,10 +7,11 @@ from captum.attr import Saliency
 import nibabel as nib
 from torch.nn.functional import interpolate
 from interMIA.dataloader import normalize
+from matplotlib import pyplot as plt
 
 
 try:
-    attribution = torch.load("data/saliency_TC.pt")
+    attribution = torch.load("data/saliency_TC123.pt")
     img_pt = attribution[0, 0, :, :, :]
 except FileNotFoundError:
     # model
@@ -62,7 +63,7 @@ img_rescale[struct_seg.get_fdata() == 0] = 0
 # img_rescale[img_rescale > np.mean(img_rescale) + 2 * np.std(img_rescale)] = 0
 
 # only keep values in img_recale that are greater than 0.1
-img_rescale[img_rescale < 0.4] = 0
+# img_rescale[img_rescale < 0.4] = 0
 # img_rescale[img_rescale > 0.4] = 1
 
 
@@ -75,9 +76,16 @@ img_rescale[img_rescale < 0.4] = 0
 # img_rescale = uniform_filter(img_rescale, size=3)
 # 
 
+OS3D(img_rescale, cmap="coolwarm").show()
+
+# plot and save image
+plt.imshow(img_rescale[:, 15, :], cmap="coolwarm")
+plt.savefig("data/vis/saliency_map.png")
+plt.show()
+
 # create new nifti image from img_rescale
-new_img = nib.Nifti1Image(img_rescale, standard.affine, standard.header)
+# new_img = nib.Nifti1Image(img_rescale, standard.affine, standard.header)
 
 # save new image
-nib.save(new_img, "data/saliency_standard_prep_TC.nii.gz")
+# nib.save(new_img, "data/saliency_standard_prep_TC.nii.gz")
 # compare_fm_differences(img_no_pt, img_pt)

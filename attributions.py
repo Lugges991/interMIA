@@ -7,6 +7,7 @@ from captum.attr import IntegratedGradients
 import nibabel as nib
 from torch.nn.functional import interpolate
 from interMIA.dataloader import normalize
+import matplotlib.pyplot as plt
 
 
 try:
@@ -53,20 +54,16 @@ img_rescale[struct_seg.get_fdata() == 0] = 0
 # only keep values in img_rescale that are half standard deviation above or below the mean
 
 # only keep values in img_rescale that are half standard deviation above or below the mean
-img_rescale[img_rescale < np.mean(img_rescale) - 0.6*np.std(img_rescale)] = 0
-img_rescale[img_rescale > np.mean(img_rescale) + 0.6*np.std(img_rescale)] = 0
-
-# only keep values in img_rescale that are significantly different from the mean 
+# img_rescale[img_rescale < np.mean(img_rescale) - 0.6*np.std(img_rescale)] = 0
+# img_rescale[img_rescale > np.mean(img_rescale) + 0.6*np.std(img_rescale)] = 0
 
 
-# # get singular values of img_rescale
-# u, s, vh = np.linalg.svd(img_rescale, full_matrices=False)
-# 
-# # plot singular values
-# import matplotlib.pyplot as plt
-# plt.plot(s)
-# plt.show()
-# 
+OS3D(img_rescale, cmap="coolwarm").show()
+
+# plot image and save to disk
+plt.imshow(img_rescale[:, :, 10], cmap="coolwarm")
+plt.savefig("data/vis/integrated_gradients.png")
+plt.show()
 
 # create new nifti image from img_rescale
 new_img = nib.Nifti1Image(img_rescale, standard.affine, standard.header)
