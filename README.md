@@ -1,6 +1,6 @@
 # Master Thesis -- Interpretable Medical Image Analysis
 
-![Image](data/vis/generated_images/tc_render_mricron.png)
+![Image](data/vis/generated_images/rendering_3dslicer.png)
 
 ## Motivation
 
