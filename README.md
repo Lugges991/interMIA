@@ -33,16 +33,20 @@
 [Brain Biomarker Interpretation in ASD Using Deep Learning and fMRI](https://link.springer.com/chapter/10.1007/978-3-030-00931-1_24)
 
 **Goal:** Classify ASD, understand decision making process
+
 **Methods:**
+
 - standard fMRI preprocessing
 - calculate mean and standard deviation of time slices with length of 3 frames each
 - concatenate mean and std in channel dimension and input to NN
 - NN: DarkNet-style 3D fully convolutional
 - perform lesion experiments on ROIs identified by feature attribution to assess whether learned representations are useful
+
 **Results:** 85.3% accuracy on rs-fMRI
 
 ## Preliminary Results
 **Data Flow:**
+
 ![Pipeline](data/vis/information_flow.png)
 
 ### Status
@@ -68,9 +72,11 @@
 ### Feature Visualization on Baseline
 
 **Saliency Maps**
+
 ![Saliency Map](data/vis/saliency_map_3d.png)
 
 **Integrated Gradients**
+
 ![Integrated Gradients](data/vis/integrated_gradients_3d.png)
 
 
