@@ -140,8 +140,8 @@ class ViT3D(nn.Module):
 
 
 if __name__ == "__main__":
-    model = ViT3D(heads=16, depth=24, dim=1024, mlp_dim=4096)
+    model = ViT3D(heads=12, depth=12, dim=1024, mlp_dim=3072)
     inp = torch.rand((1, 2, 32, 32, 32))
-    out = model(inp)
-    print(out.shape)
+    # out = model(inp)
+    # print(out.shape)
     summary(model, input_data=inp)

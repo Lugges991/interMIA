@@ -25,13 +25,14 @@ cfg = {"BATCH_SIZE": 16,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 2,
        "MODEL_DIR": "./models/",
-       "MODEL_NAME": ViT3D(patch_size=16, heads=16, depth=24, dim=1024, mlp_dim=4096),
+       "MODEL_NAME": ViT3D(patch_size=16, heads=16, depth=24, dim=1024, mlp_dim=4096, dropout=0.5, emb_dropout=0.3),
        "loss": nn.CrossEntropyLoss(),
        "INFO": "normalize",
        "SITE": "WHOLE",
        "WEIGHT_DECAY": 0.1,
        "MOMENTUM": 0.9,
        }
+
 
 RUN_NAME = ""
 
@@ -79,8 +80,7 @@ def test():
     model = cfg["MODEL_NAME"].cuda()
     # model = TwoCVGG().cuda()
     # model.load_state_dict(torch.load("/mnt/DATA/models/brain-biomarker-sitev0-generous-planet-8/best_model.pth")["state_dict"])
-    breakpoint()
-    model.load_state_dict(torch.load("/home/lmahler/code/interMIA/models/brain-biomarker-whole-trafo-v0_fast-rain-2/best_model.pth")["state_dict"])
+    model.load_state_dict(torch.load("/home/lmahler/code/interMIA/models/brain-biomarker-whole-trafo-v0_rare-dawn-5/model_epoch_0.pth")["state_dict"])
 
     test_data = prepare_subs(test_data)
 

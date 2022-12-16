@@ -34,6 +34,31 @@ class data_2c(Dataset):
         label = torch.tensor(self.labels[idx], dtype=torch.float)
         return vol, label
 
+class aug_2c(Dataset):
+    def __init__(self, csv, img_size=(32, 32, 32), aug_prob=0.5, noise_factor=0.1):
+        super().__init__()
+        df = pd.read_csv(csv)
+        self.paths = df.PATH.values
+        self.labels = replace_labels(df.LABEL.values)
+        self.img_size = img_size
+        self.aug_prob = aug_prob
+        self.noise_factor = noise_factor
+
+    def __len__(self,):
+        return len(self.paths)
+
+    def __getitem__(self, idx):
+        vol = np.load(self.paths[idx])
+        vol = normalize(vol)[None, ...]
+        vol = torch.tensor(vol, dtype=torch.float)
+        vol = interpolate(vol, size=self.img_size)[0]
+        # with probability of self.aug_prob add noise to vol
+        if np.random.rand() < self.aug_prob:
+            vol = vol + torch.randn_like(vol) * self.noise_factor
+        label = torch.tensor(self.labels[idx], dtype=torch.float)
+        return vol, label
+
+
 
 if __name__ == "__main__":
     from torch.utils.data import DataLoader

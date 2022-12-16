@@ -9,13 +9,14 @@ import torchmetrics as tm
 from pathlib import Path
 from torch.utils.data import DataLoader
 from torch import nn
+from torch.optim.lr_scheduler import LinearLR
 from tqdm import tqdm
 
 from interMIA.models import TwoCVGG
 from interMIA.models import TwoCC3D
 from interMIA.models import DM
 from interMIA.models import ResNet, ViT3D
-from interMIA.dataloader import data_2c
+from interMIA.dataloader import data_2c, aug_2c
 from interMIA.utils.file_utils import check_or_make_dir, copy_models
 from interMIA.utils import EarlyStopping
 
@@ -26,11 +27,11 @@ torch.manual_seed(42)
 
 cfg = {"BATCH_SIZE": 16,
        "EPOCHS": 10,
-       "LR": 1e-5,
+       "LR": 8e-4,
        "img_size": (32, 32, 32),
        "VAL_AFTER": 2,
        "MODEL_DIR": "./models/",
-       "MODEL_NAME": ViT3D(patch_size=16, heads=16, depth=24, dim=1024, mlp_dim=4096, dropout=0.2, emb_dropout=0.1),
+       "MODEL_NAME": ViT3D(heads=12, depth=12, dim=1024, mlp_dim=3072),
        "loss": nn.CrossEntropyLoss(),
        "INFO": "normalize",
        "SITE": "WHOLE",
@@ -42,7 +43,7 @@ RUN_NAME = ""
 
 
 def train():
-    train_data = data_2c("data/train.csv")
+    train_data = aug_2c("data/train.csv")
     val_data = data_2c("data/val.csv")
 
     train_loader = DataLoader(
@@ -55,6 +56,9 @@ def train():
     # optimizer
     optimizer = optim.AdamW(model.parameters(), lr=cfg["LR"], weight_decay=cfg["WEIGHT_DECAY"])
     #optimizer = optim.SGD(model.parameters(), lr=cfg["LR"], weight_decay=cfg["WEIGHT_DECAY"], momentum=cfg["MOMENTUM"])
+
+    # scheduler
+    scheduler = LinearLR(optimizer)
 
     # loss
     criterion = nn.CrossEntropyLoss().cuda()
@@ -100,6 +104,7 @@ def train():
                 tepoch.set_postfix(loss=f"{loss.item():10.3f}")
 
             wandb.log({"Epoch Loss": epoch_loss})
+            scheduler.step()
 
 
         if epoch % cfg["VAL_AFTER"] == 0:
